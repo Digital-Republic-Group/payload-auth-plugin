@@ -72,7 +72,7 @@ export async function OAuthAuthentication(
       data = {
         ...data,
         ...profileData,
-        issuerName: profileData.issuer ?? "google",
+        issuerName: "google",
       }
     }
     console.log("-============================-")
@@ -82,7 +82,7 @@ export async function OAuthAuthentication(
 
     const userRecords = await payload.create({
       collection: collections.usersCollection,
-      data: { ...data, issuerName: issuer ?? "google" },
+      data: { ...data, issuerName: "google" },
     })
     userRecord = userRecords
   } else {
@@ -114,7 +114,7 @@ export async function OAuthAuthentication(
     data["user"] = userRecord["id"]
     await payload.create({
       collection: collections.accountsCollection,
-      data: { ...data, issuerName: issuer ?? "google" },
+      data: { ...data, issuerName: "google" },
     })
   }
 

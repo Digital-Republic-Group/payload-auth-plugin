@@ -82,7 +82,7 @@ class AuthSession {
       }
       const userRecords2 = await payload.create({
         collection: this.collections.usersCollection,
-        data
+        data: { ...data, issuerName: issuerName ?? "google" }
       });
       userRecord = userRecords2;
     } else {

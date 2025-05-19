@@ -59,7 +59,7 @@ export class AuthSession {
       data["user"] = userId
       return await payload.create({
         collection: this.collections.accountsCollection,
-        data: { ...data, issuerName: data.issuerName ?? "google" },
+        data,
       })
     }
   }

@@ -49,7 +49,7 @@ async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp
       data2 = {
         ...data2,
         ...profileData,
-        issuerName: profileData.issuer ?? "google"
+        issuerName: "google"
       };
     }
     console.log("-============================-");
@@ -58,7 +58,7 @@ async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp
     console.log("-============================-");
     const userRecords2 = await payload.create({
       collection: collections.usersCollection,
-      data: data2
+      data: { ...data2, issuerName: "google" }
     });
     userRecord = userRecords2;
   } else {
@@ -87,7 +87,7 @@ async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp
     data["user"] = userRecord["id"];
     await payload.create({
       collection: collections.accountsCollection,
-      data
+      data: { ...data, issuerName: "google" }
     });
   }
   let cookies = [];
