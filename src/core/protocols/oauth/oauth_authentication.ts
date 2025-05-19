@@ -114,7 +114,7 @@ export async function OAuthAuthentication(
     data["user"] = userRecord["id"]
     await payload.create({
       collection: collections.accountsCollection,
-      data,
+      data: { ...data, issuerName: issuer ?? "google" },
     })
   }
 

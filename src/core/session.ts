@@ -59,7 +59,7 @@ export class AuthSession {
       data["user"] = userId
       return await payload.create({
         collection: this.collections.accountsCollection,
-        data,
+        data: { ...data, issuerName: data.issuerName ?? "google" },
       })
     }
   }
@@ -109,7 +109,8 @@ export class AuthSession {
 
       const userRecords = await payload.create({
         collection: this.collections.usersCollection,
-        data,
+
+        data: { ...data, issuerName: issuerName ?? "google" },
       })
       userRecord = userRecords
     } else {
