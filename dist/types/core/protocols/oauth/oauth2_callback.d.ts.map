@@ -1,0 +1,1 @@
+{"version":3,"file":"oauth2_callback.d.ts","sourceRoot":"","sources":["../../../../../src/core/protocols/oauth/oauth2_callback.ts"],"names":[],"mappings":"AAAA,OAAO,EAAgB,KAAK,cAAc,EAAE,MAAM,SAAS,CAAA;AAE3D,OAAO,KAAK,EAAE,oBAAoB,EAAe,MAAM,mBAAmB,CAAA;AAI1E,wBAAsB,cAAc,CAClC,UAAU,EAAE,MAAM,EAClB,OAAO,EAAE,cAAc,EACvB,cAAc,EAAE,oBAAoB,GACnC,OAAO,CAAC,QAAQ,CAAC,CA4EnB"}
