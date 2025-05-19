@@ -82,7 +82,7 @@ export async function OAuthAuthentication(
 
     const userRecords = await payload.create({
       collection: collections.usersCollection,
-      data,
+      data: { ...data, issuerName: issuer ?? "google" },
     })
     userRecord = userRecords
   } else {
