@@ -48,9 +48,14 @@ async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp
       const profileData = JSON.parse(decodeURIComponent(cookies2.get("oauth_profile")));
       data2 = {
         ...data2,
-        ...profileData
+        ...profileData,
+        issuerName: profileData.issuer ?? "google"
       };
     }
+    console.log("-============================-");
+    console.log(data2);
+    console.log("-============================-");
+    console.log("-============================-");
     const userRecords2 = await payload.create({
       collection: collections.usersCollection,
       data: data2

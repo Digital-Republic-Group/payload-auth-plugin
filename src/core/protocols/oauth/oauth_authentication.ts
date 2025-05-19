@@ -72,6 +72,7 @@ export async function OAuthAuthentication(
       data = {
         ...data,
         ...profileData,
+        issuerName: profileData.issuer ?? "google",
       }
     }
     console.log("-============================-")
