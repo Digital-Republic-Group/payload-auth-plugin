@@ -74,6 +74,10 @@ export async function OAuthAuthentication(
         ...profileData,
       }
     }
+    console.log("-============================-")
+    console.log(data)
+    console.log("-============================-")
+    console.log("-============================-")
 
     const userRecords = await payload.create({
       collection: collections.usersCollection,
