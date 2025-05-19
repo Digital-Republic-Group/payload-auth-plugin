@@ -12,7 +12,6 @@ import {
   invalidateOAuthCookies
 } from "../../utils/cookies.js";
 import { APP_COOKIE_SUFFIX } from "../../../constants.js";
-import { SuccessKind } from "../../../types.js";
 async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, request) {
   const sub = request.searchParams.get("sub");
   const email = request.searchParams.get("email");
@@ -101,18 +100,16 @@ async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp
     })
   ];
   cookies = invalidateOAuthCookies(cookies);
-  const res = new Response(JSON.stringify({
-    message: "Authenticated successfully",
-    kind: SuccessKind.Created,
-    isSuccess: true,
-    isError: false
-  }), {
-    status: 200
+  const redirect = new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/"
+    }
   });
   cookies.forEach((cookie) => {
-    res.headers.append("Set-Cookie", cookie);
+    redirect.headers.append("Set-Cookie", cookie);
   });
-  return res;
+  return redirect;
 }
 export {
   OAuthAuthentication

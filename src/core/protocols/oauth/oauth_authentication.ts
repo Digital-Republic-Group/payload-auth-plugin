@@ -136,20 +136,31 @@ export async function OAuthAuthentication(
 
   cookies = invalidateOAuthCookies(cookies)
 
-  const res = new Response(
-    JSON.stringify({
-      message: "Authenticated successfully",
-      kind: SuccessKind.Created,
-      isSuccess: true,
-      isError: false,
-    }),
-    {
-      status: 200,
+  // const res = new Response(
+  //   JSON.stringify({
+  //     message: "Authenticated successfully",
+  //     kind: SuccessKind.Created,
+  //     isSuccess: true,
+  //     isError: false,
+  //   }),
+  //   {
+  //     status: 200,
+  //   },
+  // )
+  const redirect = new Response(null, {
+    status: 302, // Using 302 Found for redirects
+    headers: {
+      Location: "/", // Redirect to the home page
     },
-  )
-
-  cookies.forEach((cookie) => {
-    res.headers.append("Set-Cookie", cookie)
   })
-  return res
+  cookies.forEach((cookie) => {
+    redirect.headers.append("Set-Cookie", cookie)
+  })
+
+  return redirect
+
+  // cookies.forEach((cookie) => {
+  //   res.headers.append("Set-Cookie", cookie)
+  // })
+  // return res
 }
