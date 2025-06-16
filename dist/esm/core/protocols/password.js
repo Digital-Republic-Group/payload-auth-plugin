@@ -1,0 +1,270 @@
+// src/core/protocols/password.ts
+import {
+  parseCookies
+} from "payload";
+import {
+  EmailAlreadyExistError,
+  InvalidCredentials,
+  InvalidRequestBodyError,
+  MissingOrInvalidVerification,
+  UnauthorizedAPIRequest,
+  UserNotFoundAPIError
+} from "../errors/apiErrors.js";
+import { hashPassword, verifyPassword } from "../utils/password.js";
+import { SuccessKind } from "../../types.js";
+import { ephemeralCode, verifyEphemeralCode } from "../utils/hash.js";
+import {
+  APP_COOKIE_SUFFIX
+} from "../../constants.js";
+import {
+  createSessionCookies,
+  invalidateOAuthCookies,
+  verifySessionCookie
+} from "../utils/cookies.js";
+var redirectWithSession = async (cookieName, path, secret, fields, request) => {
+  let cookies = [];
+  cookies = [...await createSessionCookies(cookieName, secret, fields)];
+  cookies = invalidateOAuthCookies(cookies);
+  const successRedirectionURL = new URL(`${request.origin}${path}`);
+  const res = new Response(null, {
+    status: 302,
+    headers: {
+      Location: successRedirectionURL.href
+    }
+  });
+  for (const c of cookies) {
+    res.headers.append("Set-Cookie", c);
+  }
+  return res;
+};
+var PasswordSignin = async (pluginType, request, internal, useAdmin, secret, successRedirectPath, errorRedirectPath) => {
+  const body = request.json && await request.json();
+  if (!body?.email || !body.password) {
+    return new InvalidRequestBodyError;
+  }
+  const { payload } = request;
+  const { docs } = await payload.find({
+    collection: internal.usersCollectionSlug,
+    where: {
+      email: { equals: body.email }
+    },
+    limit: 1
+  });
+  if (docs.length !== 1) {
+    return new UserNotFoundAPIError;
+  }
+  const userRecord = docs[0];
+  if (!userRecord.hashedPassword) {
+    return new InvalidCredentials;
+  }
+  const isVerifed = await verifyPassword(body.password, userRecord.hashedPassword, userRecord.hashSalt, userRecord.hashIterations);
+  if (!isVerifed) {
+    return new InvalidCredentials;
+  }
+  const cookieName = useAdmin ? `${payload.config.cookiePrefix}-token` : `__${pluginType}-${APP_COOKIE_SUFFIX}`;
+  const signinFields = {
+    id: userRecord.id,
+    email: body.email,
+    collection: internal.usersCollectionSlug
+  };
+  return await redirectWithSession(cookieName, successRedirectPath, secret, signinFields, request);
+};
+var PasswordSignup = async (pluginType, request, internal, useAdmin, secret, successRedirectPath, errorRedirectPath) => {
+  const body = request.json && await request.json();
+  if (!body?.email || !body.password) {
+    return new InvalidRequestBodyError;
+  }
+  const { payload } = request;
+  const { docs } = await payload.find({
+    collection: internal.usersCollectionSlug,
+    where: {
+      email: { equals: body.email }
+    },
+    limit: 1
+  });
+  if (docs.length > 0) {
+    return new EmailAlreadyExistError;
+  }
+  const {
+    hash: hashedPassword,
+    salt: hashSalt,
+    iterations
+  } = await hashPassword(body.password);
+  const userRecord = await payload.create({
+    collection: internal.usersCollectionSlug,
+    data: {
+      email: body.email,
+      hashedPassword,
+      hashIterations: iterations,
+      hashSalt,
+      ...body.userInfo
+    }
+  });
+  if (body.allowAutoSignin) {
+    const cookieName = useAdmin ? `${payload.config.cookiePrefix}-token` : `__${pluginType}-${APP_COOKIE_SUFFIX}`;
+    const signinFields = {
+      id: userRecord.id,
+      email: body.email,
+      collection: internal.usersCollectionSlug
+    };
+    return await redirectWithSession(cookieName, successRedirectPath, secret, signinFields, request);
+  }
+  return Response.json({
+    message: "Signed up successfully",
+    kind: SuccessKind.Created,
+    isSuccess: true,
+    isError: false
+  }, { status: 201 });
+};
+var ForgotPasswordInit = async (request, internal, emailTemplate) => {
+  const { payload } = request;
+  const body = request.json && await request.json();
+  if (!body?.email) {
+    return new InvalidRequestBodyError;
+  }
+  const { docs } = await payload.find({
+    collection: internal.usersCollectionSlug,
+    where: {
+      email: { equals: body.email }
+    },
+    limit: 1
+  });
+  if (docs.length !== 1) {
+    return new UserNotFoundAPIError;
+  }
+  const { code, hash } = await ephemeralCode(6, payload.secret);
+  await payload.sendEmail({
+    to: body.email,
+    subject: "Password recovery",
+    html: await emailTemplate({
+      verificationCode: code
+    })
+  });
+  const res = new Response(JSON.stringify({
+    message: "Verification email sent",
+    kind: SuccessKind.Created,
+    isSuccess: true,
+    isError: false
+  }), { status: 201 });
+  const verification_token_expires = new Date;
+  verification_token_expires.setDate(verification_token_expires.getDate() + 7);
+  await payload.update({
+    collection: internal.usersCollectionSlug,
+    id: docs[0].id,
+    data: {
+      verificationHash: hash,
+      verificationCode: code,
+      verificationTokenExpire: Math.floor(verification_token_expires.getTime() / 1000),
+      verificationKind: "PASSWORD_RESTORE"
+    }
+  });
+  return res;
+};
+var ForgotPasswordVerify = async (request, internal) => {
+  const { payload } = request;
+  const body = request.json && await request.json();
+  if (!body?.password || !body.code) {
+    return new InvalidRequestBodyError;
+  }
+  const { docs } = await payload.find({
+    collection: internal.usersCollectionSlug,
+    where: {
+      verificationCode: { equals: body.code }
+    }
+  });
+  const currentDate = Date.now();
+  if (docs.length === 0 || docs[0].verificationCode !== body.code || !docs[0].verificationHash || Math.floor(currentDate / 1000) > docs[0].verificationTokenExpire || docs[0].verificationKind !== "PASSWORD_RESTORE") {
+    return new MissingOrInvalidVerification;
+  }
+  const { verificationHash: hash, id: userId } = docs[0];
+  const isVerified = await verifyEphemeralCode(body.code, hash, payload.secret);
+  if (!isVerified) {
+    return new MissingOrInvalidVerification;
+  }
+  const {
+    hash: hashedPassword,
+    salt: hashSalt,
+    iterations
+  } = await hashPassword(body.password);
+  await payload.update({
+    collection: internal.usersCollectionSlug,
+    id: userId,
+    data: {
+      hashedPassword,
+      hashSalt,
+      hashIterations: iterations,
+      verificationHash: null,
+      verificationCode: null,
+      verificationTokenExpire: null,
+      verificationKind: null
+    }
+  });
+  const res = new Response(JSON.stringify({
+    message: "Password recovered successfully",
+    kind: SuccessKind.Updated,
+    isSuccess: true,
+    isError: false
+  }), { status: 201 });
+  return res;
+};
+var ResetPassword = async (cookieName, secret, internal, request) => {
+  const { payload } = request;
+  const cookies = parseCookies(request.headers);
+  const token = cookies.get(cookieName);
+  if (!token) {
+    return new UnauthorizedAPIRequest;
+  }
+  const jwtResponse = await verifySessionCookie(token, secret);
+  if (!jwtResponse.payload) {
+    return new UnauthorizedAPIRequest;
+  }
+  const body = request.json && await request.json();
+  if (!body?.email || !body?.currentPassword || !body?.newPassword) {
+    return new InvalidRequestBodyError;
+  }
+  const { docs } = await payload.find({
+    collection: internal.usersCollectionSlug,
+    where: {
+      email: { equals: body.email }
+    },
+    limit: 1
+  });
+  if (docs.length !== 1) {
+    return new UserNotFoundAPIError;
+  }
+  const user = docs[0];
+  const isVerifed = await verifyPassword(body.currentPassword, user.hashedPassword, user.hashSalt, user.hashIterations);
+  if (!isVerifed) {
+    return new InvalidCredentials;
+  }
+  const {
+    hash: hashedPassword,
+    salt: hashSalt,
+    iterations
+  } = await hashPassword(body.newPassword);
+  await payload.update({
+    collection: internal.usersCollectionSlug,
+    id: user.id,
+    data: {
+      hashedPassword,
+      hashSalt,
+      hashIterations: iterations
+    }
+  });
+  const res = new Response(JSON.stringify({
+    message: "Password reset complete",
+    kind: SuccessKind.Updated,
+    isSuccess: true,
+    isError: false
+  }), {
+    status: 201
+  });
+  return res;
+};
+export {
+  ResetPassword,
+  PasswordSignup,
+  PasswordSignin,
+  ForgotPasswordVerify,
+  ForgotPasswordInit
+};
