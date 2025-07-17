@@ -10,22 +10,29 @@ import {
 } from "../../errors/apiErrors.js";
 import { OAuthAuthentication } from "./oauth_authentication.js";
 async function OIDCCallback(pluginType, request, providerConfig, collections, allowOAuthAutoSignUp, useAdmin, secret, successRedirectPath, errorRedirectPath, redirectUri) {
+  console.error("oidc_callback with", providerConfig);
   const parsedCookies = parseCookies(request.headers);
   const code_verifier = parsedCookies.get("__session-code-verifier");
   const nonce = parsedCookies.get("__session-oauth-nonce");
   if (!code_verifier) {
     throw new MissingOrInvalidSession;
   }
+  console.error("oidc_callback with", providerConfig);
   const { client_id, client_secret, issuer, algorithm, profile } = providerConfig;
   const client = {
     client_id
   };
+  console.error("oidc_callback with", providerConfig);
   const clientAuth = oauth.ClientSecretPost(client_secret ?? "");
   const current_url = new URL(request.url);
   const callback_url = getCallbackURL(request.payload.config.serverURL, pluginType, providerConfig.id);
   const issuer_url = new URL(issuer);
+  console.error("oidc_callback with", providerConfig);
+  console.error(current_url, "current_url in oidc_callback");
+  const state = current_url.searchParams.get("state") || providerConfig?.params?.state;
   const as = await oauth.discoveryRequest(issuer_url, { algorithm }).then((response2) => oauth.processDiscoveryResponse(issuer_url, response2));
-  const params = oauth.validateAuthResponse(as, client, current_url, providerConfig?.params?.state || undefined);
+  console.error(current_url, "current_url in oidc_callback");
+  const params = oauth.validateAuthResponse(as, client, current_url, state || undefined);
   const grantResponse = await oauth.authorizationCodeGrantRequest(as, client, clientAuth, params, callback_url.toString(), code_verifier);
   const body = await grantResponse.json();
   let response = new Response(JSON.stringify(body), grantResponse);
@@ -57,7 +64,7 @@ async function OIDCCallback(pluginType, request, providerConfig, collections, al
     issuer: providerConfig.issuer,
     picture: result.picture ?? ""
   };
-  return await OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, userData, redirectUri);
+  return await OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, userData, state);
 }
 export {
   OIDCCallback

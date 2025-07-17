@@ -11,6 +11,7 @@ import { APP_COOKIE_SUFFIX } from "../../../constants.js";
 async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, account, redirectUri) {
   const { email: _email, sub, name, scope, issuer, picture } = account;
   const { payload } = request;
+  console.error("OAuthAuthentication called with redirectUri:", redirectUri);
   const email = _email.toLowerCase();
   const userRecords = await payload.find({
     collection: collections.usersCollection,
@@ -77,6 +78,7 @@ async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp
   ];
   cookies = invalidateOAuthCookies(cookies);
   const redirectTo = redirectUri ? new URL(`${payload.config.serverURL}${redirectUri}`) : new URL(`${payload.config.serverURL}${successRedirectPath}`);
+  console.error("Redirecting to:", redirectTo.href);
   const res = new Response(null, {
     status: 302,
     headers: {

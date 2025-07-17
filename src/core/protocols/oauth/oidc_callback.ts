@@ -25,6 +25,7 @@ export async function OIDCCallback(
   errorRedirectPath: string,
   redirectUri?: string,
 ): Promise<Response> {
+  console.error("oidc_callback with", providerConfig)
   const parsedCookies = parseCookies(request.headers)
 
   const code_verifier = parsedCookies.get("__session-code-verifier")
@@ -33,13 +34,14 @@ export async function OIDCCallback(
   if (!code_verifier) {
     throw new MissingOrInvalidSession()
   }
+  console.error("oidc_callback with", providerConfig)
 
   const { client_id, client_secret, issuer, algorithm, profile } =
     providerConfig
   const client: oauth.Client = {
     client_id,
   }
-
+  console.error("oidc_callback with", providerConfig)
   const clientAuth = oauth.ClientSecretPost(client_secret ?? "")
 
   const current_url = new URL(request.url as string) as URL
@@ -50,15 +52,20 @@ export async function OIDCCallback(
   )
   const issuer_url = new URL(issuer) as URL
 
+  console.error("oidc_callback with", providerConfig)
+  console.error(current_url, "current_url in oidc_callback")
+  const state =
+    current_url.searchParams.get("state") || providerConfig?.params?.state
+  // current_url.searchParams.delete("state")
   const as = await oauth
     .discoveryRequest(issuer_url, { algorithm })
     .then((response) => oauth.processDiscoveryResponse(issuer_url, response))
-
+  console.error(current_url, "current_url in oidc_callback")
   const params = oauth.validateAuthResponse(
     as,
     client,
     current_url,
-    providerConfig?.params?.state || undefined,
+    state || undefined,
   )
 
   const grantResponse = await oauth.authorizationCodeGrantRequest(
@@ -132,6 +139,6 @@ export async function OIDCCallback(
     successRedirectPath,
     errorRedirectPath,
     userData,
-    redirectUri,
+    state,
   )
 }

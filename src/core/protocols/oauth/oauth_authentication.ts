@@ -34,7 +34,7 @@ export async function OAuthAuthentication(
 ): Promise<Response> {
   const { email: _email, sub, name, scope, issuer, picture } = account
   const { payload } = request
-
+  console.error("OAuthAuthentication called with redirectUri:", redirectUri)
   const email = _email.toLowerCase()
 
   const userRecords = await payload.find({
@@ -114,7 +114,7 @@ export async function OAuthAuthentication(
   const redirectTo = redirectUri
     ? new URL(`${payload.config.serverURL}${redirectUri}`)
     : new URL(`${payload.config.serverURL}${successRedirectPath}`)
-
+  console.error("Redirecting to:", redirectTo.href)
   const res = new Response(null, {
     status: 302,
     headers: {
