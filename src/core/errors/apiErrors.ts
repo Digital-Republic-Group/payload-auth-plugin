@@ -33,7 +33,7 @@ export class MissingEmailAPIError extends AuthAPIError {
 
 export class UnVerifiedAccountAPIError extends AuthAPIError {
   constructor() {
-    super("Account is not verfified", ErrorKind.BadRequest)
+    super("Account is not verified", ErrorKind.BadRequest)
   }
 }
 
@@ -100,7 +100,7 @@ export class InternalServerError extends AuthAPIError {
 export class MissingOrInvalidVerification extends AuthAPIError {
   constructor() {
     super(
-      "Verifcation failed. Missing or invalid verification code.",
+      "Verification failed. Missing or invalid verification code.",
       ErrorKind.BadRequest,
     )
   }

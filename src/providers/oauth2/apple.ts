@@ -7,8 +7,6 @@ import type {
 
 type AppleAuthConfig = OAuthBaseProviderConfig
 
-const algorithm = "oauth2"
-
 const authorization_server: AuthorizationServer = {
   issuer: "https://appleid.apple.com",
   authorization_endpoint: "https://appleid.apple.com/auth/authorize",
@@ -20,27 +18,19 @@ const authorization_server: AuthorizationServer = {
  *
  * #### Callback or Redirect URL pattern
  *
- * - For Admin
  * ```
- * https://example.com/api/admin/oauth/callback/apple
- * ```
- *
- * - For App
- * ```
- * https://example.com/api/{app_name}/oauth/callback/apple
+ * https://example.com/api/{name}/oauth/callback/apple
  * ```
  *
  * #### Plugin Setup
  *
  * ```ts
  * import { Plugin } from 'payload'
- * import {adminAuthPlugin, appAuthPlugin} from "payload-auth-plugin"
+ * import {authPlugin} from "payload-auth-plugin"
  * import {AppleOAuth2Provider} from "payload-auth-plugin/providers"
  *
- * export const plugins: Plugins[] = [
- *  //For Admin
- *  adminAuthPlugin({
- *    accountsCollectionSlug: 'adminAccounts',
+ * export const plugins: Plugin[] = [
+ *  authPlugin({
  *    providers:[
  *      AppleOAuth2Provider({
  *          client_id: process.env.APPLE_CLIENT_ID as string,
@@ -49,33 +39,21 @@ const authorization_server: AuthorizationServer = {
  *    ]
  *  })
  *
- *  // For App
- *  appAuthPlugin({
- *    name: 'app'
- *    secret: process.env.APP_AUTH_SECRET,
- *    accountsCollectionSlug: 'adminAccounts',
- *    usersCollectionSlug: 'appUsers',
- *    accountsCollectionSlug: 'appAccounts',
- *    providers:[
- *      AppleOAuth2Provider({
- *          client_id: process.env.APPLE_CLIENT_ID as string,
- *          client_secret: process.env.APPLE_CLIENT_SECRET as string,
- *      })
- *    ]
- *  })
  * ]
  * ```
  *
  */
 
 function AppleOAuth2Provider(config: AppleAuthConfig): OAuth2ProviderConfig {
+  const { overrideScope, ...restConfig } = config
+
   return {
-    ...config,
+    ...restConfig,
     id: "apple",
-    scope: "name email",
+    scope: overrideScope ?? "name email",
     authorization_server,
     name: "Apple",
-    algorithm,
+    algorithm: "oauth2",
     params: {
       ...config.params,
       response_mode: "form_post",
