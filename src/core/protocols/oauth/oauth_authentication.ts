@@ -112,7 +112,7 @@ export async function OAuthAuthentication(
   ]
   cookies = invalidateOAuthCookies(cookies)
   const redirectTo = redirectUri
-    ? new URL(`${payload.config.serverURL}${redirectUri}`)
+    ? new URL(`${payload.config.serverURL}${decodeURIComponent(redirectUri)}`)
     : new URL(`${payload.config.serverURL}${successRedirectPath}`)
   console.error("Redirecting to:", redirectTo.href)
   const res = new Response(null, {
