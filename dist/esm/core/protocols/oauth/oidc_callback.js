@@ -9,7 +9,7 @@ import {
   UnVerifiedAccountAPIError
 } from "../../errors/apiErrors.js";
 import { OAuthAuthentication } from "./oauth_authentication.js";
-async function OIDCCallback(pluginType, request, providerConfig, collections, allowOAuthAutoSignUp, useAdmin, secret, successRedirectPath, errorRedirectPath) {
+async function OIDCCallback(pluginType, request, providerConfig, collections, allowOAuthAutoSignUp, useAdmin, secret, successRedirectPath, errorRedirectPath, redirectUri) {
   const parsedCookies = parseCookies(request.headers);
   const code_verifier = parsedCookies.get("__session-code-verifier");
   const nonce = parsedCookies.get("__session-oauth-nonce");
@@ -57,7 +57,7 @@ async function OIDCCallback(pluginType, request, providerConfig, collections, al
     issuer: providerConfig.issuer,
     picture: result.picture ?? ""
   };
-  return await OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, userData);
+  return await OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, userData, redirectUri);
 }
 export {
   OIDCCallback

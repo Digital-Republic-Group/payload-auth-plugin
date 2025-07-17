@@ -30,6 +30,7 @@ export async function OAuthAuthentication(
     issuer: string
     picture?: string | undefined
   },
+  redirectUri?: string,
 ): Promise<Response> {
   const { email: _email, sub, name, scope, issuer, picture } = account
   const { payload } = request
@@ -110,13 +111,14 @@ export async function OAuthAuthentication(
     })),
   ]
   cookies = invalidateOAuthCookies(cookies)
-  const successRedirectionURL = new URL(
-    `${payload.config.serverURL}${successRedirectPath}`,
-  )
+  const redirectTo = redirectUri
+    ? new URL(`${payload.config.serverURL}${redirectUri}`)
+    : new URL(`${payload.config.serverURL}${successRedirectPath}`)
+
   const res = new Response(null, {
     status: 302,
     headers: {
-      Location: successRedirectionURL.href,
+      Location: redirectTo.href,
     },
   })
 

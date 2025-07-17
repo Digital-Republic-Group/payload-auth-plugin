@@ -59,6 +59,9 @@ export class OAuthEndpointStrategy implements EndpointStrategy {
             request.routeParams?.provider as string
           ] as OAuthProviderConfig
 
+          const redirectUri =
+            request.searchParams.get("redirect_uri") ?? undefined
+
           return OAuthHandlers(
             pluginType,
             collections,
@@ -69,6 +72,7 @@ export class OAuthEndpointStrategy implements EndpointStrategy {
             provider,
             successRedirectPath,
             errorRedirectPath,
+            redirectUri,
           )
         },
       },

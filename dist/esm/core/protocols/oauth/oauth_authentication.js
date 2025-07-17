@@ -8,7 +8,7 @@ import {
   invalidateOAuthCookies
 } from "../../utils/cookies.js";
 import { APP_COOKIE_SUFFIX } from "../../../constants.js";
-async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, account) {
+async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, account, redirectUri) {
   const { email: _email, sub, name, scope, issuer, picture } = account;
   const { payload } = request;
   const email = _email.toLowerCase();
@@ -76,11 +76,11 @@ async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp
     })
   ];
   cookies = invalidateOAuthCookies(cookies);
-  const successRedirectionURL = new URL(`${payload.config.serverURL}${successRedirectPath}`);
+  const redirectTo = redirectUri ? new URL(`${payload.config.serverURL}${redirectUri}`) : new URL(`${payload.config.serverURL}${successRedirectPath}`);
   const res = new Response(null, {
     status: 302,
     headers: {
-      Location: successRedirectionURL.href
+      Location: redirectTo.href
     }
   });
   for (const c of cookies) {

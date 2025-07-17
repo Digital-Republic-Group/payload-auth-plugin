@@ -9,5 +9,5 @@ export declare function OAuthAuthentication(pluginType: string, collections: {
     scope: string;
     issuer: string;
     picture?: string | undefined;
-}): Promise<Response>;
+}, redirectUri?: string): Promise<Response>;
 //# sourceMappingURL=oauth_authentication.d.ts.map

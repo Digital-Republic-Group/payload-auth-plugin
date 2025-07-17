@@ -23,6 +23,7 @@ export async function OIDCCallback(
   secret: string,
   successRedirectPath: string,
   errorRedirectPath: string,
+  redirectUri?: string,
 ): Promise<Response> {
   const parsedCookies = parseCookies(request.headers)
 
@@ -131,5 +132,6 @@ export async function OIDCCallback(
     successRedirectPath,
     errorRedirectPath,
     userData,
+    redirectUri,
   )
 }

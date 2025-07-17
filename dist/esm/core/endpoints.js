@@ -23,7 +23,8 @@ class OAuthEndpointStrategy {
         method: "get",
         handler: (request) => {
           const provider = this.providers[request.routeParams?.provider];
-          return OAuthHandlers(pluginType, collections, allowOAuthAutoSignUp, request.payload.secret, useAdmin, request, provider, successRedirectPath, errorRedirectPath);
+          const redirectUri = request.searchParams.get("redirect_uri") ?? undefined;
+          return OAuthHandlers(pluginType, collections, allowOAuthAutoSignUp, request.payload.secret, useAdmin, request, provider, successRedirectPath, errorRedirectPath, redirectUri);
         }
       }
     ];

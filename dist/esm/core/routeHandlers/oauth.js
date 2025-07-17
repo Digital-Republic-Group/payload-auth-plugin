@@ -8,7 +8,7 @@ import { OIDCAuthorization } from "../protocols/oauth/oidc_authorization.js";
 import { OAuth2Authorization } from "../protocols/oauth/oauth2_authorization.js";
 import { OIDCCallback } from "../protocols/oauth/oidc_callback.js";
 import { OAuth2Callback } from "../protocols/oauth/oauth2_callback.js";
-function OAuthHandlers(pluginType, collections, allowOAuthAutoSignUp, secret, useAdmin, request, provider, successRedirectPath, errorRedirectPath) {
+function OAuthHandlers(pluginType, collections, allowOAuthAutoSignUp, secret, useAdmin, request, provider, successRedirectPath, errorRedirectPath, redirectUri) {
   if (!provider) {
     throw new InvalidProvider;
   }
@@ -26,7 +26,7 @@ function OAuthHandlers(pluginType, collections, allowOAuthAutoSignUp, secret, us
     case "callback":
       switch (provider.algorithm) {
         case "oidc": {
-          return OIDCCallback(pluginType, request, provider, collections, allowOAuthAutoSignUp, useAdmin, secret, successRedirectPath, errorRedirectPath);
+          return OIDCCallback(pluginType, request, provider, collections, allowOAuthAutoSignUp, useAdmin, secret, successRedirectPath, errorRedirectPath, redirectUri);
         }
         case "oauth2": {
           return OAuth2Callback(pluginType, request, provider, collections, allowOAuthAutoSignUp, useAdmin, secret, successRedirectPath, errorRedirectPath);
