@@ -17,7 +17,7 @@ function OAuthHandlers(pluginType, collections, allowOAuthAutoSignUp, secret, us
     case "authorization":
       switch (provider.algorithm) {
         case "oidc":
-          return OIDCAuthorization(pluginType, request, provider);
+          return OIDCAuthorization(pluginType, request, provider, redirectUri);
         case "oauth2":
           return OAuth2Authorization(pluginType, request, provider);
         default:

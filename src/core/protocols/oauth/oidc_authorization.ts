@@ -7,6 +7,7 @@ export async function OIDCAuthorization(
   pluginType: string,
   request: PayloadRequest,
   providerConfig: OIDCProviderConfig,
+  redirectUri?: string,
 ): Promise<Response> {
   const callback_url = getCallbackURL(
     request.payload.config.serverURL,
@@ -31,7 +32,19 @@ export async function OIDCAuthorization(
 
   const authorizationURL = new URL(as.authorization_endpoint as string)
   authorizationURL.searchParams.set("client_id", client.client_id)
-  authorizationURL.searchParams.set("redirect_uri", callback_url.toString())
+  if (redirectUri) {
+    authorizationURL.searchParams.set(
+      "redirect_uri",
+      encodeURIComponent(
+        callback_url.toString() +
+          "&" +
+          "redirect_uri" +
+          encodeURIComponent(redirectUri),
+      ),
+    )
+  } else {
+    authorizationURL.searchParams.set("redirect_uri", callback_url.toString())
+  }
   authorizationURL.searchParams.set("response_type", "code")
   authorizationURL.searchParams.set("scope", scope as string)
   authorizationURL.searchParams.set("code_challenge", code_challenge)

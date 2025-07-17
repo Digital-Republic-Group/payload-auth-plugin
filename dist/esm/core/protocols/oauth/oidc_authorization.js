@@ -1,7 +1,7 @@
 // src/core/protocols/oauth/oidc_authorization.ts
 import * as oauth from "oauth4webapi";
 import { getCallbackURL } from "../../utils/cb.js";
-async function OIDCAuthorization(pluginType, request, providerConfig) {
+async function OIDCAuthorization(pluginType, request, providerConfig, redirectUri) {
   const callback_url = getCallbackURL(request.payload.config.serverURL, pluginType, providerConfig.id);
   const code_verifier = oauth.generateRandomCodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -16,7 +16,11 @@ async function OIDCAuthorization(pluginType, request, providerConfig) {
   const cookieMaxage = new Date(Date.now() + 300 * 1000);
   const authorizationURL = new URL(as.authorization_endpoint);
   authorizationURL.searchParams.set("client_id", client.client_id);
-  authorizationURL.searchParams.set("redirect_uri", callback_url.toString());
+  if (redirectUri) {
+    authorizationURL.searchParams.set("redirect_uri", encodeURIComponent(callback_url.toString() + "&" + "redirect_uri" + encodeURIComponent(redirectUri)));
+  } else {
+    authorizationURL.searchParams.set("redirect_uri", callback_url.toString());
+  }
   authorizationURL.searchParams.set("response_type", "code");
   authorizationURL.searchParams.set("scope", scope);
   authorizationURL.searchParams.set("code_challenge", code_challenge);
