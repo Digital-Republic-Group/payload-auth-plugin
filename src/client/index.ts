@@ -15,11 +15,13 @@ import { MissingPayloadAuthBaseURL } from "../core/errors/consoleErrors.js"
 
 class AuthClient {
   private baseURL: string
+  private redirectUri?: string
   constructor(
     private name: string,
     options?:
       | {
           payloadBaseURL?: string | undefined
+          redirectUri?: string | undefined
         }
       | undefined,
   ) {
@@ -36,6 +38,7 @@ class AuthClient {
     return signin({
       name: this.name,
       baseURL: this.baseURL,
+      redirectUri: this.redirectUri,
     })
   }
   register() {

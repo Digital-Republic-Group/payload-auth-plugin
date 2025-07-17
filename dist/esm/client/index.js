@@ -14,6 +14,7 @@ import { MissingPayloadAuthBaseURL } from "../core/errors/consoleErrors.js";
 class AuthClient {
   name;
   baseURL;
+  redirectUri;
   constructor(name, options) {
     this.name = name;
     if (!options?.payloadBaseURL && !process.env.NEXT_PUBLIC_PAYLOAD_AUTH_URL) {
@@ -24,7 +25,8 @@ class AuthClient {
   signin() {
     return signin({
       name: this.name,
-      baseURL: this.baseURL
+      baseURL: this.baseURL,
+      redirectUri: this.redirectUri
     });
   }
   register() {

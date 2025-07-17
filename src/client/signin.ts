@@ -3,6 +3,7 @@ import { oauth, type OauthProvider } from "./oauth.js"
 interface BaseOptions {
   name: string
   baseURL: string
+  redirectUri?: string
 }
 
 export const signin = (options: BaseOptions) => {

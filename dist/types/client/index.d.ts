@@ -2,8 +2,10 @@ import { type PasswordResetPayload, type ForgotPasswordPayload, type PasswordRec
 declare class AuthClient {
     private name;
     private baseURL;
+    private redirectUri?;
     constructor(name: string, options?: {
         payloadBaseURL?: string | undefined;
+        redirectUri?: string | undefined;
     } | undefined);
     signin(): {
         oauth: (provider: import("./oauth.js").OauthProvider) => void;
