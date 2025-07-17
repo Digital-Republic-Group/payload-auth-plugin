@@ -21,6 +21,7 @@ class AuthClient {
       throw new MissingPayloadAuthBaseURL;
     }
     this.baseURL = options?.payloadBaseURL ?? process.env.NEXT_PUBLIC_PAYLOAD_AUTH_URL;
+    this.redirectUri = options?.redirectUri;
   }
   signin() {
     return signin({

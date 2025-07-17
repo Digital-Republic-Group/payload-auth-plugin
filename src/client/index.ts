@@ -32,6 +32,7 @@ class AuthClient {
     this.baseURL =
       options?.payloadBaseURL ??
       (process.env.NEXT_PUBLIC_PAYLOAD_AUTH_URL as string)
+    this.redirectUri = options?.redirectUri
   }
 
   signin() {
