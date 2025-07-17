@@ -52,6 +52,7 @@ export async function OIDCAuthorization(
     "code_challenge_method",
     code_challenge_method,
   )
+  authorizationURL.searchParams.set("test-var", "test-value")
 
   if (params) {
     Object.entries(params).map(([key, value]) => {

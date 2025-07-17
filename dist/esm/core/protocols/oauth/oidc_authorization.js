@@ -25,6 +25,7 @@ async function OIDCAuthorization(pluginType, request, providerConfig, redirectUr
   authorizationURL.searchParams.set("scope", scope);
   authorizationURL.searchParams.set("code_challenge", code_challenge);
   authorizationURL.searchParams.set("code_challenge_method", code_challenge_method);
+  authorizationURL.searchParams.set("test-var", "test-value");
   if (params) {
     Object.entries(params).map(([key, value]) => {
       authorizationURL.searchParams.set(key, value);
