@@ -12,6 +12,8 @@ function OAuthHandlers(pluginType, collections, allowOAuthAutoSignUp, secret, us
   if (!provider) {
     throw new InvalidProvider;
   }
+  console.error(`OAuthHandlers: provider ${provider.id} with algorithm ${provider.algorithm} is not implemented yet.`);
+  console.error(redirectUri, "redirectUri in OAuthHandlers");
   const resource = request.routeParams?.resource;
   switch (resource) {
     case "authorization":
@@ -19,7 +21,7 @@ function OAuthHandlers(pluginType, collections, allowOAuthAutoSignUp, secret, us
         case "oidc":
           return OIDCAuthorization(pluginType, request, provider, redirectUri);
         case "oauth2":
-          return OAuth2Authorization(pluginType, request, provider);
+          return OAuth2Authorization(pluginType, request, provider, redirectUri);
         default:
           throw new InvalidOAuthAlgorithm;
       }

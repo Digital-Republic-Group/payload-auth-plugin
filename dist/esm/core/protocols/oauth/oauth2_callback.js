@@ -4,7 +4,7 @@ import * as oauth from "oauth4webapi";
 import { getCallbackURL } from "../../utils/cb.js";
 import { MissingOrInvalidSession } from "../../errors/consoleErrors.js";
 import { OAuthAuthentication } from "./oauth_authentication.js";
-async function OAuth2Callback(pluginType, request, providerConfig, collections, allowOAuthAutoSignUp, useAdmin, secret, successRedirectPath, errorRedirectPath) {
+async function OAuth2Callback(pluginType, request, providerConfig, collections, allowOAuthAutoSignUp, useAdmin, secret, successRedirectPath, errorRedirectPath, redirectUri) {
   const parsedCookies = parseCookies(request.headers);
   const code_verifier = parsedCookies.get("__session-code-verifier");
   const state = parsedCookies.get("__session-oauth-state");
@@ -38,7 +38,7 @@ async function OAuth2Callback(pluginType, request, providerConfig, collections, 
     issuer: providerConfig.authorization_server.issuer,
     picture: userInfo.picture ?? ""
   };
-  return await OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, userData);
+  return await OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, userData, redirectUri);
 }
 export {
   OAuth2Callback
