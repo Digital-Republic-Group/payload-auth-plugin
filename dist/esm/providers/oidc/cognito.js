@@ -1,11 +1,11 @@
 // src/providers/oidc/cognito.ts
 function CognitoAuthProvider(config) {
-  const { domain, region, ...restConfig } = config;
+  const { domain, overrideScope, ...restConfig } = config;
   return {
     ...restConfig,
     id: "cognito",
-    scope: "email openid profile",
-    issuer: `https://${domain}/${region}`,
+    scope: overrideScope ?? "email openid profile",
+    issuer: domain,
     name: "Congnito",
     algorithm: "oidc",
     kind: "oauth",

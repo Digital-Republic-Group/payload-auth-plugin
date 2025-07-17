@@ -6,10 +6,11 @@ var authorization_server = {
   userinfo_endpoint: "https://api.github.com/user"
 };
 function GitHubAuthProvider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "github",
-    scope: "openid email profile",
+    scope: overrideScope ?? "openid email profile",
     authorization_server,
     name: "GitHub",
     algorithm: "oauth2",

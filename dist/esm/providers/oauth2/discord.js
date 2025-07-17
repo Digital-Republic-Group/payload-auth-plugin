@@ -6,10 +6,11 @@ var authorization_server = {
   userinfo_endpoint: "https://discord.com/api/users/@me"
 };
 function DiscordAuthProvider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "discord",
-    scope: "identify email",
+    scope: overrideScope ?? "identify email",
     authorization_server,
     name: "Discord",
     algorithm: "oauth2",

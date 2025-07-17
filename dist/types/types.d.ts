@@ -59,11 +59,16 @@ export interface OAuthBaseProviderConfig {
     client_secret?: string;
     client_auth_type?: "client_secret_basic" | "client_secret_post";
     params?: Record<string, string>;
+    /**
+     * Override default scope of the provider
+     */
+    overrideScope?: string | undefined;
 }
 export interface OIDCProviderConfig extends OAuthProviderOutput, OAuthBaseProviderConfig {
     issuer: string;
     algorithm: "oidc";
     kind: "oauth";
+    skip_email_verification?: boolean | undefined;
 }
 export interface OAuth2ProviderConfig extends OAuthProviderOutput, OAuthBaseProviderConfig {
     authorization_server: AuthorizationServer;

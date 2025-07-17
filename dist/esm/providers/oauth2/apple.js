@@ -1,18 +1,18 @@
 // src/providers/oauth2/apple.ts
-var algorithm = "oauth2";
 var authorization_server = {
   issuer: "https://appleid.apple.com",
   authorization_endpoint: "https://appleid.apple.com/auth/authorize",
   token_endpoint: "https://appleid.apple.com/auth/token"
 };
 function AppleOAuth2Provider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "apple",
-    scope: "name email",
+    scope: overrideScope ?? "name email",
     authorization_server,
     name: "Apple",
-    algorithm,
+    algorithm: "oauth2",
     params: {
       ...config.params,
       response_mode: "form_post"

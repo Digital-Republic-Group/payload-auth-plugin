@@ -7,13 +7,14 @@ var authorization_server = {
   userinfo_endpoint: "https://api.atlassian.com/me"
 };
 function AtlassianAuthProvider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "atlassian",
     authorization_server,
     name: "Atlassian",
     algorithm,
-    scope: "read:me read:account",
+    scope: overrideScope ?? "read:me read:account",
     kind: "oauth",
     profile: (profile) => {
       return {

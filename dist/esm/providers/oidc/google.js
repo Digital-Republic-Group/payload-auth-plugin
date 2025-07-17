@@ -1,9 +1,10 @@
 // src/providers/oidc/google.ts
 function GoogleAuthProvider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
     ...config,
     id: "google",
-    scope: "openid email profile",
+    scope: overrideScope ?? "openid email profile",
     issuer: "https://accounts.google.com",
     name: "Google",
     algorithm: "oidc",

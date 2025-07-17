@@ -6,10 +6,11 @@ var authorization_server = {
   userinfo_endpoint: "https://oauth.id.jumpcloud.com/userinfo"
 };
 function JumpCloudAuthProvider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "jumpcloud",
-    scope: "openid email profile",
+    scope: overrideScope ?? "openid email profile",
     authorization_server,
     name: "Jump Cloud",
     algorithm: "oauth2",

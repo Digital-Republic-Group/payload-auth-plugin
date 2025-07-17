@@ -1,55 +1,32 @@
-import type { OIDCProviderConfig } from "../../types.js";
-type AppleAuthConfig = {
+import type { OAuthBaseProviderConfig, OIDCProviderConfig } from "../../types.js";
+interface AppleAuthConfig extends OAuthBaseProviderConfig {
     client_id: string;
     params?: Record<string, string>;
-};
+}
 /**
  * Add Apple OIDC Provider
  *
  * #### Callback or Redirect URL pattern
  *
- * - For Admin
  * ```
- * https://example.com/api/admin/oauth/callback/apple
- * ```
- *
- * - For App
- * ```
- * https://example.com/api/{app_name}/oauth/callback/apple
+ * https://example.com/api/{name}/oauth/callback/apple
  * ```
  *
  * #### Plugin Setup
  *
  * ```ts
  * import { Plugin } from 'payload'
- * import {adminAuthPlugin, appAuthPlugin} from "payload-auth-plugin"
- * import {AppleOIDCAuthProvider} from "payload-auth-plugin/providers"
+ * import { authPlugin } from "payload-auth-plugin"
+ * import { AppleOIDCAuthProvider } from "payload-auth-plugin/providers"
  *
- * export const plugins: Plugins[] = [
- *  //For Admin
- *  adminAuthPlugin({
- *    accountsCollectionSlug: 'adminAccounts',
+ * export const plugins: Plugin[] = [
+ *  authPlugin({
  *    providers:[
  *      AppleOIDCAuthProvider({
  *          client_id: process.env.APPLE_CLIENT_ID as string,
  *      })
  *    ]
  *  })
- *
- *  // For App
- *  appAuthPlugin({
- *    name: 'app'
- *    secret: process.env.APP_AUTH_SECRET,
- *    accountsCollectionSlug: 'adminAccounts',
- *    usersCollectionSlug: 'appUsers',
- *    accountsCollectionSlug: 'appAccounts',
- *    providers:[
- *      AppleOIDCAuthProvider({
- *          client_id: process.env.APPLE_CLIENT_ID as string,
- *      })
- *    ]
- *  })
- * ]
  * ```
  *
  */

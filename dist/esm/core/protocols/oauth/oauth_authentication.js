@@ -9,8 +9,9 @@ import {
 } from "../../utils/cookies.js";
 import { APP_COOKIE_SUFFIX } from "../../../constants.js";
 async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp, useAdmin, secret, request, successRedirectPath, errorRedirectPath, account) {
-  const { email, sub, name, scope, issuer, picture } = account;
+  const { email: _email, sub, name, scope, issuer, picture } = account;
   const { payload } = request;
+  const email = _email.toLowerCase();
   const userRecords = await payload.find({
     collection: collections.usersCollection,
     where: {

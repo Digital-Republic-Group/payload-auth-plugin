@@ -6,10 +6,11 @@ var authorization_server = {
   userinfo_endpoint: "https://graph.facebook.com/me?fields=id,name,email,picture"
 };
 function FacebookAuthProvider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "facebook",
-    scope: "email",
+    scope: overrideScope ?? "email",
     authorization_server,
     name: "Facebook",
     algorithm: "oauth2",

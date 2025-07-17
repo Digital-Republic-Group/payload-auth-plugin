@@ -1,9 +1,10 @@
 // src/providers/oidc/apple.ts
 function AppleOIDCAuthProvider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "apple",
-    scope: "openid name email",
+    scope: overrideScope ?? "openid name email",
     issuer: "https://appleid.apple.com",
     name: "Apple",
     algorithm: "oidc",

@@ -1,7 +1,5 @@
 // src/core/protocols/password.ts
-import {
-  parseCookies
-} from "payload";
+import { parseCookies } from "payload";
 import {
   EmailAlreadyExistError,
   InvalidCredentials,
@@ -13,9 +11,7 @@ import {
 import { hashPassword, verifyPassword } from "../utils/password.js";
 import { SuccessKind } from "../../types.js";
 import { ephemeralCode, verifyEphemeralCode } from "../utils/hash.js";
-import {
-  APP_COOKIE_SUFFIX
-} from "../../constants.js";
+import { APP_COOKIE_SUFFIX } from "../../constants.js";
 import {
   createSessionCookies,
   invalidateOAuthCookies,
@@ -42,11 +38,12 @@ var PasswordSignin = async (pluginType, request, internal, useAdmin, secret, suc
   if (!body?.email || !body.password) {
     return new InvalidRequestBodyError;
   }
+  const email = body.email.toLowerCase();
   const { payload } = request;
   const { docs } = await payload.find({
     collection: internal.usersCollectionSlug,
     where: {
-      email: { equals: body.email }
+      email: { equals: email }
     },
     limit: 1
   });
@@ -64,7 +61,7 @@ var PasswordSignin = async (pluginType, request, internal, useAdmin, secret, suc
   const cookieName = useAdmin ? `${payload.config.cookiePrefix}-token` : `__${pluginType}-${APP_COOKIE_SUFFIX}`;
   const signinFields = {
     id: userRecord.id,
-    email: body.email,
+    email,
     collection: internal.usersCollectionSlug
   };
   return await redirectWithSession(cookieName, successRedirectPath, secret, signinFields, request);
@@ -74,11 +71,12 @@ var PasswordSignup = async (pluginType, request, internal, useAdmin, secret, suc
   if (!body?.email || !body.password) {
     return new InvalidRequestBodyError;
   }
+  const email = body.email.toLowerCase();
   const { payload } = request;
   const { docs } = await payload.find({
     collection: internal.usersCollectionSlug,
     where: {
-      email: { equals: body.email }
+      email: { equals: email }
     },
     limit: 1
   });
@@ -93,7 +91,7 @@ var PasswordSignup = async (pluginType, request, internal, useAdmin, secret, suc
   const userRecord = await payload.create({
     collection: internal.usersCollectionSlug,
     data: {
-      email: body.email,
+      email,
       hashedPassword,
       hashIterations: iterations,
       hashSalt,
@@ -104,7 +102,7 @@ var PasswordSignup = async (pluginType, request, internal, useAdmin, secret, suc
     const cookieName = useAdmin ? `${payload.config.cookiePrefix}-token` : `__${pluginType}-${APP_COOKIE_SUFFIX}`;
     const signinFields = {
       id: userRecord.id,
-      email: body.email,
+      email,
       collection: internal.usersCollectionSlug
     };
     return await redirectWithSession(cookieName, successRedirectPath, secret, signinFields, request);
@@ -122,10 +120,11 @@ var ForgotPasswordInit = async (request, internal, emailTemplate) => {
   if (!body?.email) {
     return new InvalidRequestBodyError;
   }
+  const email = body.email.toLowerCase();
   const { docs } = await payload.find({
     collection: internal.usersCollectionSlug,
     where: {
-      email: { equals: body.email }
+      email: { equals: email }
     },
     limit: 1
   });
@@ -134,7 +133,7 @@ var ForgotPasswordInit = async (request, internal, emailTemplate) => {
   }
   const { code, hash } = await ephemeralCode(6, payload.secret);
   await payload.sendEmail({
-    to: body.email,
+    to: email,
     subject: "Password recovery",
     html: await emailTemplate({
       verificationCode: code
@@ -222,10 +221,11 @@ var ResetPassword = async (cookieName, secret, internal, request) => {
   if (!body?.email || !body?.currentPassword || !body?.newPassword) {
     return new InvalidRequestBodyError;
   }
+  const email = body.email.toLowerCase();
   const { docs } = await payload.find({
     collection: internal.usersCollectionSlug,
     where: {
-      email: { equals: body.email }
+      email: { equals: email }
     },
     limit: 1
   });

@@ -1,13 +1,13 @@
 // src/providers/oidc/gitlab.ts
 function GitLabAuthProvider(config) {
-  const algorithm = "oidc";
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "gitlab",
-    scope: "openid email profile",
+    scope: overrideScope ?? "openid email profile",
     issuer: "https://gitlab.com",
     name: "GitLab",
-    algorithm,
+    algorithm: "oidc",
     kind: "oauth",
     profile: (profile) => {
       return {

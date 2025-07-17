@@ -1,9 +1,10 @@
 // src/providers/oidc/slack.ts
 function SlackAuthProvider(config) {
+  const { overrideScope, ...restConfig } = config;
   return {
-    ...config,
+    ...restConfig,
     id: "slack",
-    scope: "openid email profile",
+    scope: overrideScope ?? "openid email profile",
     issuer: "https://slack.com",
     name: "Slack",
     algorithm: "oidc",

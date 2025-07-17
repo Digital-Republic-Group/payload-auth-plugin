@@ -1,10 +1,10 @@
 // src/providers/oidc/keycloak.ts
 function KeyCloakAuthProvider(config) {
-  const { realm, domain, identifier, name, ...restConfig } = config;
+  const { realm, domain, identifier, name, overrideScope, ...restConfig } = config;
   return {
     ...restConfig,
     id: identifier,
-    scope: "email openid profile",
+    scope: overrideScope ?? "email openid profile",
     issuer: `https://${domain}/realms/${realm}`,
     name,
     algorithm: "oidc",

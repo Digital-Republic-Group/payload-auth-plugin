@@ -43,11 +43,11 @@ async function OIDCCallback(pluginType, request, providerConfig, collections, al
   }
   const userInfoResponse = await oauth.userInfoRequest(as, client, token_result.access_token);
   const result = await oauth.processUserInfoResponse(as, client, claims?.sub, userInfoResponse);
-  if (!result.email_verified) {
-    return new UnVerifiedAccountAPIError;
-  }
   if (!result.email) {
     return new MissingEmailAPIError;
+  }
+  if (!providerConfig.skip_email_verification && !result.email_verified) {
+    return new UnVerifiedAccountAPIError;
   }
   const userData = {
     email: result.email,
