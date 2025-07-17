@@ -25,7 +25,8 @@ async function OAuthAuthentication(pluginType, collections, allowOAuthAutoSignUp
     userRecord = userRecords.docs[0];
   } else if (allowOAuthAutoSignUp) {
     const data2 = {
-      email
+      email,
+      name
     };
     const hasAuthEnabled = Boolean(payload.collections[collections.usersCollection].config.auth);
     if (hasAuthEnabled) {
